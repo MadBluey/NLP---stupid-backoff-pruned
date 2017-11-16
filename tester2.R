@@ -96,19 +96,25 @@ save(bigTablePruned,file = "bigTablePruned.RData")
 
 # That n-gram which is not in the top 5 will be removed. 
 
-model <- function(input) {
-    input <- tolower(input)
-    
-    bigramF <- function(input){
-        
-        input_split <- stri_split(input,regex = " ")[[1]]
-        len <- length(input_spslit)*1
-        output <- filter(bigTablePruned, word1==input & class == "bigram")
-        print(output[1:5,])
+
+stupidBackoffScore <- function(output,inputType, len){
+    if(inputType == "trigram"){
+        outputB <- bigramF()
+        score = sum(output$n)/sum()
     }
+    
+}
+
+bigramF <- function(input){
+    input <- tolower(input)
+    input_split <- stri_split(input,regex = " ")[[1]]
+    len <- length(input_spslit)*1
+    output <- filter(bigTablePruned, word1==input & class == "bigram")
+    print(output[1:5,])
 }
 
 trigramF <- function(input){
+    input <- tolower(input)
     if(stri_count_words(input) > 1) {
         input_split <- stri_split(input,regex = " ")[[1]]
         len <- length(input_split)*1 # As numeric... 
@@ -122,19 +128,11 @@ trigramF <- function(input){
     }
 }
 
-stupidBackoffScore <- function(output,inputType, len){
-    if(inputType == "trigram"){
-        outputB <- bigramF()
-        score = sum(output$n)/sum()
+modelOutput <- function(input) {
+    input <- tolower(input)
+    if(stri_count_words(input) == 1) {     
+        bigramF(input)
+    } else { 
+        trigramF(input)
     }
-    
 }
-
-if(stri_count_words(input) == 1) {     
-    bigramF(input)
-} else { 
-    trigramF(input)
-}
-
-
-
