@@ -1,9 +1,23 @@
-stupidBackoffScores <- function(input_split,output){
-    
+library(dplyr)
+library(tidyr)
+library(stringi)
+
+stupidBackoffScores <- function(input_split,output, df = bigTablePruned){
     
     class <- output$class[1]
+    
     # Take in a n-gram find the score of n-gram and find the score of n-gram -1. 
-    if(class == "trigram"){
+    
+    if (is.na(class)) {
+        
+        output <- filter(df, class == "unigram")
+        output$predWord <- output$word1
+        output$score <- round(output$n / sum(output$n),3)
+        
+    } else if(class == "trigram") {
+        
+        output$predWord <- output$word3
+        
         output$score <- 
             output$n / 
             sum(
@@ -12,90 +26,63 @@ stupidBackoffScores <- function(input_split,output){
                     word1==input_split[length(input_split)-1],
                     word2 == input_split[length(input_split)] & class == "bigram")$n)
         
-    } else if (class == "bigram"){
+    } else if (class == "bigram") {
+        
+        output$predWord <- output$word2
+        
         output$score <- 
             0.4 * output$n / 
             sum(
                 filter(
                     df, 
                     class == "unigram" & word1 == input_split[length(input_split)])$n)
-    }
-    
+        
+    }  
+        
     output
     
 }
 
-
 modelOutput <- function(input, df = bigTablePruned){
-    input <- tolower(input)
-    if(stri_count_words(input) > 1) {
+    
+    input <- stri_trim_both(tolower(input))
+    
+    if (stri_count_words(input) > 1) {
+        
         input_split <- stri_split(input,regex = " ")[[1]]
         len <- length(input_split)*1 # As numeric... 
-
-        output <- rbind(
-            stupidBackoffScores(
-                input_split, 
+        
+        trigram <- stupidBackoffScores(input_split,
             filter(
                 df, word1 == input_split[len-1] & word2 == input_split[len] & class == "trigram")
-            )
-            ,stupidBackoffScores(
-                input_split, 
+        )
+        
+        bigram <-  stupidBackoffScores(input_split, 
             filter(
                 df, word1 == input_split[len] & class == "bigram")
             )
+        
+        output <- rbind(trigram,bigram)
+        
+    } else if (stri_count_words(input) == 1) { 
+        input_split <- stri_split(input,regex = " ")[[1]]
+        
+        output <-  stupidBackoffScores(input_split, 
+                                filter(
+                                    df, word1 == input_split[len] & class == "bigram")
         )
         
-    }
-    else{
         
-        output$probrability <- round(output$n / sum(output$n),3)
-        drops <- c("word1","word3","n","class")
-        print(output[, !names(output) %in% drops]) #1:5
+    } else {
         
-    }
-}
-
-
-
-
-
-
-
-
-
-
-bigramF <- function(input,df = bigTablePruned){
-    input <- tolower(input)
-    input_split <- stri_split(input,regex = " ")[[1]]
-    len <- length(input_split)*1
-    output <- filter(df, word1==input_split[len] & class == "bigram")
-    if(is.na(output$word1[1])){
         output <- filter(df, class == "unigram")
-        output$probrability <- round(output$n / sum(output$n),3)
-        drops <- c("word3","word2","n","class")
-        print(output[, !names(output) %in% drops]) #1:5
-    } else { 
-        output$probrability <- round(output$n / sum(output$n),3)
-        drops <- c("word1","word3","n","class")
-        print(output[, !names(output) %in% drops]) #1:5
+        output$predWord <- output$word1
+        output$score <- round(output$n / sum(output$n),3)
+        
     }
+    
+    output <- arrange(output,desc(score))
+    drops <- c("word1","word2","word3","n") 
+    output[1:10, !names(output) %in% drops]
+    
 }
-
-trigramF <- function(input,df = bigTablePruned){
-    input <- tolower(input)
-    if(stri_count_words(input) > 1) {
-        input_split <- stri_split(input,regex = " ")[[1]]
-        len <- length(input_split)*1 # As numeric... 
-        output <- filter(df, word1 == input_split[len-1] & word2 == input_split[len] & class == "trigram")
-        if(is.na(output$word1[1])){
-            bigramF(input)
-        } else {
-            output$probrability <- round(output$n / sum(output$n),3)
-            drops <- c("word1","word2","n","class")
-            print(output[, !names(output) %in% drops]) #1:5
-        }
-    }
-}
-
-
-
