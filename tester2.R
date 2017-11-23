@@ -47,22 +47,20 @@ if(!file.exists("datagrams.RData")){
 if(file.exists("ngram.RData")){ load("ngram.RData") 
 } else {
     
-    unigram <- df %>% unnest_tokens(word1, text) %>% count(word1, sort = TRUE) %>% ungroup()
+    #unigram <- df %>% unnest_tokens(word1, text) %>% count(word1, sort = TRUE) %>% ungroup()
     
-    bigram <- df %>% unnest_tokens(bigram,text,token = "ngrams", n=2) %>% count(bigram, sort = TRUE)
+    #bigram <- df %>% unnest_tokens(bigram,text,token = "ngrams", n=2) %>% count(bigram, sort = TRUE)
     
-    ptm <- proc.time()
-    trigram <- df %>% unnest_tokens(trigram,text,token = "ngrams", n=3) %>% count(trigram, sort = TRUE)
-    proc.time() - ptm
+    #trigram <- df %>% unnest_tokens(trigram,text,token = "ngrams", n=3) %>% count(trigram, sort = TRUE)
     
     ptm <- proc.time()
     quadgram <- df %>% unnest_tokens(quadgram,text, token = "ngrams", n = 4) %>% count(quadgram, sort = TRUE) %>% 
-        separate(quadgram, c("word1","word2","word3","word4"), sep = " ")
+        separate(quadgram, c("word1","word2","word3","word4"), sep = " ") 
     
-    fivegram <- df %>% unnest_tokens(fivegram, text, token = "ngrams", n = 5) %>% count(fivegram,sort = TRUE) %>% 
-        separate(fivegram, c("word1","word2","word3","word4","word5"), sep = " ")
+    #fivegram <- df %>% unnest_tokens(fivegram, text, token = "ngrams", n = 5) %>% count(fivegram,sort = TRUE) %>% 
+    #    separate(fivegram, c("word1","word2","word3","word4","word5"), sep = " ")
     proc.time() - ptm
-    save(unigram,bigram,trigram,file = "ngram.RData")
+    save(unigram,bigram,trigram,quadgram, file = "ngram.RData")
 }
 
 # Seperate trigrams
@@ -73,16 +71,21 @@ remove(bigram,trigram)
 
 unigram$word2 <- NA
 unigram$word3 <- NA 
+unigram$word4 <- NA
 unigram$class <- "unigram"
 
-bigramsSeperated$word3 <- NA
-bigramsSeperated$class <- "bigram"
+bigramsSeparated$word3 <- NA
+bigramsSeparated$word4 <- NA
+bigramsSeparated$class <- "bigram"
 
+trigramsSeparated$word4 <- NA
 trigramSeparated$class <- "trigram"
 
-bigTable <- rbind(unigram,bigramsSeperated,trigramSeparated)
+quadgram$class <- "quadgram"
+
+bigTable <- rbind(unigram,bigramsSeparated,trigramSeparated,quadgram)
 save(bigTable, file = "bigTable.RData")
-remove(trigramSeparated, bigramsSeperated,unigram)
+remove(trigramSeparated, bigramsSeparated,unigram)
 
 # Prune that those that have less than a count of 4 are removed.
 bigTablePruned <- filter(bigTable, n > 4)
@@ -90,6 +93,7 @@ bigTablePruned <- filter(bigTable, n > 4)
 bigTablePruned$word1 <- stri_replace_all_regex(bigTablePruned$word1, "[^\\x00-\\x7F]","")
 bigTablePruned$word2 <- stri_replace_all_regex(bigTablePruned$word2, "[^\\x00-\\x7F]","")
 bigTablePruned$word3 <- stri_replace_all_regex(bigTablePruned$word3, "[^\\x00-\\x7F]","")
-bigTablePruned <- filter(bigTablePruned, bigTablePruned$word1 != "" | bigTablePruned$word2 != "" & bigTablePruned$class ==  " bigram" | bigTablePruned$word3 != "" & bigTablePruned$class == "trigram ")
+bigTablePruned$word4 <- stri_replace_all_regex(bigTablePruned$word3, "[^\\x00-\\x7F]","")
+bigTablePruned <- filter(bigTablePruned, bigTablePruned$word1 != "" | bigTablePruned$word2 != "" & bigTablePruned$class ==  " bigram" | bigTablePruned$word3 != "" & bigTablePruned$class == "trigram " | bigTablePruned$word4 & bigTablePruned$class = "quadgram")
 
 save(bigTablePruned,file = "bigTablePruned.RData")

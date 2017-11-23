@@ -82,7 +82,7 @@ modelOutput <- function(input, df = bigTablePruned){
     }
     
     output <- arrange(output,desc(score))
-    drops <- c("word1","word2","word3","n") 
+    drops <- c("word1","word2","word3","n","class") 
     output[1:10, !names(output) %in% drops]
     
 }

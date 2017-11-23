@@ -12,6 +12,10 @@ library(ggplot2)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
    
+    source("modelOutput.R")
+    load("bigTablePruned.Rdata")
+    
+    
   set.seed(1234)
     plot1 <- qplot(rnorm(500),fill = I("red"),binwidth = 0.2)
     plot2 <- qplot(rnorm(500),fill = I("blue"),binwidth = 0.2)

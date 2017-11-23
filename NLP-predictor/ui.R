@@ -23,7 +23,7 @@ shinyUI(fluidPage(
         ),
         
         # Show a plot of the generated distribution
-        mainPanel("The upper panel shows the top 5 words and the bottom panel the probabilities.",
+        mainPanel("The upper panel shows the top 5 words and the bottom panel the scores",
                   fluidRow(splitLayout(cellWidths = c("50%","50%")),
                            plotOutput("plot1"),plotOutput("plot2")
                   )
