@@ -1,6 +1,8 @@
 library(dplyr)
 library(tidyr)
 library(stringi)
+library(memoise)
+library(wordcloud)
 
 stupidBackoffScores <- function(input_split,output, df = bigTablePruned){
     
@@ -65,7 +67,9 @@ modelOutput <- function(input, df = bigTablePruned){
         output <- rbind(trigram,bigram)
         
     } else if (stri_count_words(input) == 1) { 
+        
         input_split <- stri_split(input,regex = " ")[[1]]
+        len <- length(input_split)*1 # As numeric... 
         
         output <-  stupidBackoffScores(input_split, 
                                 filter(
@@ -82,7 +86,7 @@ modelOutput <- function(input, df = bigTablePruned){
     }
     
     output <- arrange(output,desc(score))
-    drops <- c("word1","word2","word3","n","class") 
+    drops <- c("word1","word2","word3","class","n") 
     output[1:10, !names(output) %in% drops]
     
 }
