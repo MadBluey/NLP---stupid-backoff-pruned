@@ -7,3 +7,9 @@
 *.RData
 *.txt
 rsconnect/shinyapps.io/madbluey/NLP-wordPredictor-stupidBackoff.dcf
+*.Rpres
+*.dcf
+*.Rpres
+*.md
+*.html
+*.md

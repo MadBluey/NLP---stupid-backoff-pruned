@@ -34,7 +34,7 @@ shinyUI(fluidPage(
                   To update the table and the prediction the user has to press Submit!
                   
                   ",
-                  fluidRow(splitLayout(cellWidths = c("20%","30%","50")), 
+                  fluidRow(splitLayout(cellWidths = c("20%","30%","50%")), 
                            
                            tableOutput("plot1"),
                            uiOutput("textO"),

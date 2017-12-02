@@ -3,7 +3,7 @@ library(tidyr)
 library(stringi)
 library(wordcloud)
 
-load("bigTablePruned.Rdata")
+load("bigTablePruned.RData")
 
 stupidBackoffScores <- function(input_split,output, df = bigTablePruned){
     
