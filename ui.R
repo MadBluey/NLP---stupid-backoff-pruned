@@ -12,22 +12,36 @@ library(shiny)
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
     
+    tags$head(
+        tags$style(
+            HTML("#dashboard{margin-bottom:50px;}")
+        )
+    ),
+    
+    
     # Application title
-    titlePanel("Natural Language Processing - Next Word Predictor."),
+    titlePanel("Natural Language Processing - Next Word Predictor using the stupid backoff scoring algorithm."),
     
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(position = "left",
                      textInput("text1", label = "Insert sentence here:"), 
-                     actionButton("update","Submit")
+                     actionButton("update","UPDATE")
         ),
         
         # Show a plot of the generated distribution
-        mainPanel("The upper panel shows the top 5 words and the bottom panel the scores",
-                  fluidRow(splitLayout(cellWidths = c("50%","50%")),
-                           tableOutput("plot1"),plotOutput("plot2")
+        mainPanel("The upper panel shows the top 5 words their respective stupid backoff scores. The scores and the words are used in the wordcloud to represent the data more clearly.
+                  To update the table and the prediction the user has to press Submit!
+                  
+                  ",
+                  fluidRow(splitLayout(cellWidths = c("20%","30%","50")), 
+                           
+                           tableOutput("plot1"),
+                           uiOutput("textO"),
+                           plotOutput("plot2")
                   )
         )
     )
+    
 )
 )

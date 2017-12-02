@@ -9,7 +9,6 @@
 
 library(shiny)
 source("modelOutput.R")
-load("bigTablePruned.Rdata")
 
 # Define server logic required to draw a histogram
 
@@ -42,6 +41,10 @@ shinyServer(function(input, output) {
         a <- a[,!names(a) %in% "n"]
            })
     
+    output$textO <- renderText({
+        a <- terms()
+        HTML(paste0("Prediction: ", input$text1," <b>", a$predWord[1],"</b>"))
+    })
     
     # Supress Error messages...
     

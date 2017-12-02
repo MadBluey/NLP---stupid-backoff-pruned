@@ -1,8 +1,9 @@
 library(dplyr)
 library(tidyr)
 library(stringi)
-library(memoise)
 library(wordcloud)
+
+load("bigTablePruned.Rdata")
 
 stupidBackoffScores <- function(input_split,output, df = bigTablePruned){
     
@@ -87,6 +88,6 @@ modelOutput <- function(input, df = bigTablePruned){
     
     output <- arrange(output,desc(score))
     drops <- c("word1","word2","word3","class","n") 
-    output[1:10, !names(output) %in% drops]
+    output[1:5, !names(output) %in% drops]
     
 }
